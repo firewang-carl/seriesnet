@@ -92,7 +92,9 @@ def vali_mymodel(model1,model2,vali_loader):
          # 向前传播
 #        with torch.no_grad():
         out = model1(img)
-        pout = model2(out)
+        pint =torch.cat((img,out),1)
+        pout = model2(pint)
+#        pout = model2(out)
         weight=LossFunction.weightmap(classlabel[0,0])
         weight=weight.cuda()
         

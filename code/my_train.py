@@ -15,7 +15,6 @@ import os
 from model import  Modified3DUNet
 
 from dataload import GetData
-#from model_unet import UNet
 
 '''定义超参数'''
 
@@ -51,7 +50,7 @@ vald_loader = torch.utils.data.DataLoader(vald_dataset, batch_size=1,drop_last =
 '''创建model实例对象，并检测是否支持使用GPU'''
 
 model1 = Modified3DUNet(in_channels=1, n_classes=3, base_n_filter = 8)
-model2 = Modified3DUNet(in_channels=3, n_classes=1, base_n_filter = 8)
+model2 = Modified3DUNet(in_channels=4, n_classes=1, base_n_filter = 8)
 
 #    load pretrained model
 #PATH1 = './flux3d_ske_m1.pth'
@@ -99,10 +98,13 @@ for epoch in range(num_epoches):
          # 向前传播
 #        with torch.no_grad():
         out = model1(img)
-        pout = model2(out)
+        
+        pint =torch.cat((img,out),1)
+        pout = model2(pint)  # add new chanel with img
+#        pout = model2(out)
+
         optimizer1.zero_grad()  #清除每个批次的梯度·
         optimizer2.zero_grad()  #清除每个批次的梯度·
-        
         
         
         weight=LossFunction.weightmap(classlabel[0,0])
@@ -152,8 +154,7 @@ for epoch in range(num_epoches):
         print('Validaion error:{:.10f}'.format(vali_loss))
         with open(filename,'a') as f: # 如果filename不存在会自动创建， 
            f.write('Validaion error:{:.10f}\n'.format(vali_loss))
-        
-    
+
 
 PATH1 = './flux3d_ske_m1.pth'
 PATH2 = './flux3d_ske_m2.pth'
